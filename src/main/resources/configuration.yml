@@ -1,0 +1,12 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 3000
+
+logging:
+  level: INFO
+
+elasticsearch:
+  protocol: http
+  host: localhost
+  port: 9200

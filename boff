@@ -1,0 +1,1 @@
+{"error":{"root_cause":[{"type":"illegal_argument_exception","reason":"invalid version format: DATE\":[20000101 TO 20190228] HTTP/1.1"}],"type":"illegal_argument_exception","reason":"invalid version format: DATE\":[20000101 TO 20190228] HTTP/1.1"},"status":400}

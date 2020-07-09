@@ -1,0 +1,18 @@
+{
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "Popularity": {"type": "float"},
+        "Vote Count": {"type": "integer"},
+        "Title": {"type": "text"},
+        "Vote Average": {"type": "float"},
+        "Overview": {"type": "text"},
+        "Release Date": {"type": "date"}
+      }
+    }
+  }
+}
