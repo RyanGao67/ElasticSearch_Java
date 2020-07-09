@@ -5,98 +5,25 @@
 ```
 Run the above command, the application and elasticsearch/kibana will be up and running.  
 
-### Task 1 - Create the ElasticSearch Index
-Given the information above about the fields in our data set, you can now define the ElasticSearch index template.
+### Task 1: 
+When starting this application, First, this application will read the `/src/main/resources/movies_template.json` and create the movies index accordingly. If the index already exist, this application will skip the index-creating step. To create the index, I used a highlevelrestclient object. This object is created in singleton mode, as this is reused in seeding and searching. 
 
-Under `/src/main/resources/movies_template.json`, there is an empty JSON file. You must fill this file with the template definition
-of the search index that you will work with for the remainder of the challenge.
-
-Once you have filled this file, implement the necessary code to have this index `"movies"` created when the SearchApplication is started. 
-
-
-### Task 2 - Parsing CSV to JSON
-Our data is currently in CSV format, but ElasticSearch accepts indexing requests as JSON data. Therefore, we need to parse this CSV data and 
-prepare it to be indexed in ElasticSearch as JSON.
-
-You must implement the `parse` method from the file `CSVToJSONParser`. The method takes a single argument, a string fileName of the file that
-contains the data we want to parse. You can assume that you will only read CSV files from the `src/main/resouces` folder. The method should write 
-the CSV file to a JSON file in the same folder, so it can be used later.
-
-Once you have implemented the parse method, implement the necessary code to trigger the method when the SearchApplication is started.
-
->**Hint:** Performance: though the provided CSV is a small data set, treat this as if it were extremely big.
+### Task 2
+When starting this application, this application will generate a json file `movie_ratings.json` from `movie_rating.csv. `
 
 ### Task 3 - Bulk Indexing
-In order to query documents from ElasticSearch, we must first index them. In the previous task, we parsed our CSV data to a JSON file. Now,
-you can read in this file of JSON documents and bulk index the data into your `"movies"` index. 
-
->**Hint 1**: Ideally, all your data would be loaded into the index before the system starts up.
-
-> **Hint 2**: Once again, performance is very important here.
+When starting this application, this application will use the `movie_ratings.json` file generated in task 2 to seed the `movies` index. Bulkprocessor is used to this purpose. 
 
 ### Task 4 - Simple Query API
-Under `QueryResource`, find and implement the `query` method to return documents that match a simple query clause:
-- **GET /api/query**
-    - q: query in simple Lucene syntax (e.g. `title:The Lion King`, `averageRating:[7.0 TO 8.5]`)
-    - docCount: max number of documents to return; max value can be 100 (i.e. requested for 150, still return only 100)
-    
-- Assumption:
-    - the query provided will always be in valid simple Lucene syntax
-    
-Expected execution:
-```
-curl -X GET http://localhost:3000/api/query?q=title:The Lion King&docCount=50
-```
-
-Expected result:
-```
-{
-    "results": [
-        {
-            <movie document #1>
-        },
-        {
-            <movie document #2>
-        },
-        ...
-        {
-            <movie document #<docCount>
-        }
-    ]
-}
+```bash
+curl -X GET "http://localhost:3000/api/query?q=title:The+Lion+King&docCount=5"
+{"results":[{"Popularity":68.125,"Title":"The Lion King","Overview":"Simba idolizes his father, King Mufasa, and takes to heart his own royal destiny. But not everyone in the kingdom celebrates the new cub's arrival. Scar, Mufasa's brother\u2014and former heir to the throne\u2014has plans of his own. The battle for Pride Rock is ravaged with betrayal, tragedy and drama, ultimately resulting in Simba's exile. With help from a curious pair of newfound friends, Simba will have to figure out how to grow up and take back what is rightfully his.","Vote Count":5204,"Vote Average":7.1,"Release Date":"2019-07-12"},{"Popularity":37.112,"Title":"The Lion King","Overview":"A young lion prince is cast out of his pride by his cruel uncle, who claims he killed his father. While the uncle rules with an iron paw, the prince grows up beyond the Savannah, living by a philosophy: No worries for the rest of your days. But when his past comes to haunt him, the young prince must decide his fate: Will he remain an outcast or face his demons and become what he needs to be?","Vote Count":11972,"Vote Average":8.3,"Release Date":"1994-05-07"},{"Popularity":18.623,"Title":"The Lion King 1½","Overview":"Timon the meerkat and Pumbaa the warthog are best pals and the unsung heroes of the African savanna. This prequel to the smash Disney animated adventure takes you back -- way back -- before Simba's adventure began. You'll find out all about Timon and Pumbaa and tag along as they search for the perfect home and attempt to raise a rambunctious lion cub.","Vote Count":1938,"Vote Average":6.5,"Release Date":"2004-02-06"},{"Popularity":50.415,"Title":"Lion","Overview":"A five-year-old Indian boy gets lost on the streets of Calcutta, thousands of kilometers from home. He survives many challenges before being adopted by a couple in Australia; 25 years later, he sets out to find his lost family.","Vote Count":4508,"Vote Average":8.1,"Release Date":"2016-11-24"},{"Popularity":18.785,"Title":"The Chronicles of Narnia: Prince Caspian","Overview":"One year after their incredible adventures in the Lion, the Witch and the Wardrobe, Peter, Edmund, Lucy and Susan Pevensie return to Narnia to aid a young prince whose life has been threatened by the evil King Miraz. Now, with the help of a colorful cast of new characters, including Trufflehunter the badger and Nikabrik the dwarf, the Pevensie clan embarks on an incredible quest to ensure that Narnia is returned to its rightful heir.","Vote Count":4132,"Vote Average":6.6,"Release Date":"2008-05-15"}]}
 ```
 
 ### Task 5 - Top Rated Movie API
-Under `QueryResource`, find and implement the `topRated` method to return the top 5 rated movies (just the top 5!) released during a specific time range:
-- **GET /api/query/topRated**
-    - startDate: (required) the starting date of the bucket; in the format YYYY-MM-DD
-    - endDate: (required) the ending date of the bucket; in the format YYYY-MM-DD
-    - minVotes: (optional) the minimum number of votes needed to consider the movie; default = 1000
-
-- You can always assume the start date will be before the end date
-- You can always assume minVotes will be > 0.
-
-Expected execution:
-```
-curl -X GET http://localhost:3000/api/query/topRated?startDate=2019-01-01&endDate=2019-02-28
-```
-
-Expected result:
-```
-{
-    <top rated doc released between 2019-01-01 and 2019-02-28>
-}
+```bash
+curl -X GET "http://localhost:3000/api/query/topRated?startDate=2019-01-01&endDate=2019-02-28&minVotes=100"
+[{"Popularity":47.551,"Title":"How to Train Your Dragon: The Hidden World","Overview":"As Hiccup fulfills his dream of creating a peaceful dragon utopia, Toothless\u2019 discovery of an untamed, elusive mate draws the Night Fury away. When danger mounts at home and Hiccup\u2019s reign as village chief is tested, both dragon and rider must make impossible decisions to save their kind.","Vote Count":3322,"Vote Average":7.7,"Release Date":"2019-01-03"},{"Popularity":45.484,"Title":"Glass","Overview":"In a series of escalating encounters, former security guard David Dunn uses his supernatural abilities to track Kevin Wendell Crumb, a disturbed man who has twenty-four personalities. Meanwhile, the shadowy presence of Elijah Price emerges as an orchestrator who holds secrets critical to both men.","Vote Count":4843,"Vote Average":6.6,"Release Date":"2019-01-16"},{"Popularity":26.894,"Title":"The Wolf's Call","Overview":"With nuclear war looming, a military expert in underwater acoustics strives to prove things aren't as they seem\u2014or sound\u2014using only his ears.","Vote Count":876,"Vote Average":7.7,"Release Date":"2019-02-20"},{"Popularity":16.99,"Title":"The Upside","Overview":"Phillip is a wealthy quadriplegic who needs a caretaker to help him with his day-to-day routine in his New York penthouse. He decides to hire Dell, a struggling parolee who's trying to reconnect with his ex and his young son. Despite coming from two different worlds, an unlikely friendship starts to blossom.","Vote Count":558,"Vote Average":7.1,"Release Date":"2019-01-10"},{"Popularity":14.948,"Title":"Iron Sky The Coming Race","Overview":"Twenty years after the events of Iron Sky, the former Nazi Moonbase has become the last refuge of mankind. Earth was devastated by a nuclear war, but buried deep under the wasteland lies a power that could save the last of humanity - or destroy it once and for all. The truth behind the creation of mankind will be revealed when an old enemy leads our heroes on an adventure into the Hollow Earth. To save humanity they must fight the Vril, an ancient shapeshifting reptilian race and their army of dinosaurs.","Vote Count":119,"Vote Average":5.1,"Release Date":"2019-01-25"}]
 ```
 
 
-## Bonus Tasks
-The following requirements are purely bonus. You will not be penalized for not completing these. You can pick and choose 
-none, any or all of the problems. They are strictly for your enjoyment (and our interest!):
-
-1. Describe the necessary steps to add SSL communication between this client and ElasticSearch.
-
-2. Implement a `POST /api/index` endpoint under `IndexResource.java` that will accept a single movie document to be indexed.
-
-3. Enhance the `GET /api/query` (from Task 4) to take a full ElasticSearch Query Syntax (JSON body).
-
-4. Introduce a [Swagger](https://swagger.io/tools/open-source/open-source-integrations/) docs page to easily execute our queries, rather than through `curl`
