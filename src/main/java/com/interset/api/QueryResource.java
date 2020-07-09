@@ -33,16 +33,18 @@ public class QueryResource {
     private final String ELASTICBASE = "http://es01:9200/movies/_search";
 
     /*
-    * Send GET request and return the response
+    * Send GET request to elasticsearch and format the response
     * */
     private JSONObject sendGET(String url) {
         JSONArray toBeReturned = null;
         JSONObject toBeReturnedObj = null;
         try {
+            // send the get request
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
             int responseCode = con.getResponseCode();
+            // if the request is sent successfully
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String inputLine;
@@ -51,7 +53,9 @@ public class QueryResource {
                     response.append(inputLine);
                 }
                 in.close();
+                // result returned from elasticsearch
                 JSONArray jsonArray = new JSONObject(response.toString()).getJSONObject("hits").getJSONArray("hits");
+                // build the result from the return information of elasticsearch
                 toBeReturnedObj = new JSONObject();
                 toBeReturned = new JSONArray();
                 if (jsonArray != null) {
@@ -80,6 +84,7 @@ public class QueryResource {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         JSONArray result = new JSONArray();
         try {
+            // send the post request
             HttpPost request = new HttpPost(url);
             StringEntity params = new StringEntity(body);
             request.addHeader("content-type", "application/json");
@@ -87,6 +92,7 @@ public class QueryResource {
             HttpResponse response = httpClient.execute(request);
             HttpEntity entity = response.getEntity();
             String responseString = EntityUtils.toString(entity, "UTF-8");
+            // get the result from elasticsearch
             JSONArray jsonArray = new JSONObject(responseString).getJSONObject("hits").getJSONArray("hits");
             result = new JSONArray();
             if (jsonArray != null) {

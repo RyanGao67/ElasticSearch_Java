@@ -56,7 +56,7 @@ public class ElasticUtil {
         return result;
     }
 
-
+    // specify the file json file and seed the index
     public  void index(String file) throws Exception {
         long t = System.currentTimeMillis();
         try {
@@ -66,6 +66,7 @@ public class ElasticUtil {
             if (statusCode == 404) {
                 throw new Exception("Index does not exist");
             }
+            // define the listener
             BulkProcessor.Listener listener = new BulkProcessor.Listener() {
                 int count = 0;
                 @Override
@@ -100,9 +101,9 @@ public class ElasticUtil {
             Gson gson = new GsonBuilder().serializeNulls().create();
             //start of json array
             jsonReader.beginArray();
-            int ii = 0;
+            int id = 0;// id of the document
             while (jsonReader.hasNext()) { //next json array element
-                ii++;
+                id++;
                 Document document = gson.fromJson(jsonReader, Document.class);
                 Map<String, Object> jsonMap = new HashMap<>();
                 jsonMap.put("Popularity", document.getPopularity());
@@ -111,19 +112,14 @@ public class ElasticUtil {
                 jsonMap.put("Overview", document.getOverview());
                 jsonMap.put("Release Date", document.getReleaseDate());
                 jsonMap.put("Title", document.getTitle());
-                bulkProcessor.add(new IndexRequest(indexName, "doc").id(ii + "").source(jsonMap));
+                bulkProcessor.add(new IndexRequest(indexName, "doc").id(id + "").source(jsonMap));
             }
             jsonReader.endArray();
-            System.out.println("Waiting to finish");
 
             boolean terminated = bulkProcessor.awaitClose(30L, TimeUnit.SECONDS);
-            if (!terminated) {
-                System.out.println("Some requests have not been processed");
-            }
+
             client.close();
-            long tn = System.currentTimeMillis();
-            System.out.println("Took " + (tn - t) / 1000 + " seconds");
-            System.out.println(ii);
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
