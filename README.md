@@ -1,63 +1,9 @@
-# Interset Search & Discovery Coding Challenge
-
-Welcome to Interset's Search and Discovery coding challenge! In the following challenge,
-you will be asked to build a Search application to index and query from a data set of movies from Netflix. 
-The following document will walk you through the structure of the project, then define the requirements 
-for the challenge.
-
-## Challenge Notes
-While you implement the necessary requirements, we strongly encourage you to:
-- test your code (not just manually)
-- consider performance
-- consider readability (clean code and/or comments are helpful!)
-- include any 3rd party library of your choice
-
-We have provided a Java skeleton of the challenge, as we **strongly recommend** that you implement the challenge in Java.
-However, if you would rather implement the challenge in another object-oriented language, we will accept it, but you will 
-need to replicate the skeleton code in that language.
-
-The skeleton is intentionally left bare-bones, as it leaves freedom for you to enhance it in any way you think necessary. There will
-be bonus requirements at the end, but if there are any further enhancements you would like to make, please go ahead with them
-and let us know what you've added!
-
-## Prerequisites
-1. Have Java 8 installed (or greater)
-2. Have Maven 3.* installed (we are using 3.5.2)
-3. Have an IDE of your choice (highly recommend IntelliJ)
-
-#### Dependencies
-##### 1) ElasticSearch 6.8.0
-* Used as our search engine for indexing and queries
-* [Download here](https://www.elastic.co/downloads/past-releases/elasticsearch-6-8-0)
-* Run `<download location>/bin/elasticsearch` to start ElasticSearch on `http://localhost:9200`
-
-##### 2) DropWizard 2.0.7
-* Used as our application server for our API
-* Packaged in our Maven dependencies (no downloads needed!)
-* [Documentation](https://www.dropwizard.io/en/latest/)
-
-#### Data
-The data that will be used in this challenge is found in `src/main/resources/movie_ratings.csv`. The data contains the following fields:
-- **Popularity:** How popular the movie is.
-- **Vote Count:** The # of people that voted on this movie.
-- **Title:** The name of the movie.
-- **Vote Average:** The average rating the movie received (out of 10).
-- **Overview:** A brief description of the movie.
-- **Release Date:** The original release date of the movie.
-
-## Running Your Application
-
-Build your application with Maven:
+## Solution:  
+### How to run this application:
 ```
-mvn clean install
+ docker-compose up --build
 ```
-
-Run your server through the shaded jar file:
-```
-java -jar ./target/search-coding-challenge-1.0-SNAPSHOT-shaded.jar server configuration.yml
-```
-
-## Requirements
+Run the above command, the application and elasticsearch/kibana will be up and running.  
 
 ### Task 1 - Create the ElasticSearch Index
 Given the information above about the fields in our data set, you can now define the ElasticSearch index template.
@@ -67,7 +13,6 @@ of the search index that you will work with for the remainder of the challenge.
 
 Once you have filled this file, implement the necessary code to have this index `"movies"` created when the SearchApplication is started. 
 
-> **Hint**: What if the index already exists at startup?
 
 ### Task 2 - Parsing CSV to JSON
 Our data is currently in CSV format, but ElasticSearch accepts indexing requests as JSON data. Therefore, we need to parse this CSV data and 
